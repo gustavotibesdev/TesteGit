@@ -13,6 +13,7 @@ import java.sql.Connection;
 import javax.swing.JOptionPane;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.sql.SQLException;
 
 
 public class ProdutosDAO {
@@ -23,8 +24,7 @@ public class ProdutosDAO {
     ArrayList<ProdutosDTO> listagem = new ArrayList<>();
     
     public void cadastrarProduto (ProdutosDTO produto){
-        
-        
+         
         conn = new conectaDAO().connectDB();
         String sql = "INSERT INTO produtos (nome, valor, status) VALUES (?, ?, ?)";
         
@@ -66,6 +66,58 @@ public class ProdutosDAO {
         
         return listagem;
     }
- 
+    
+    public boolean atualizarStatus(int id) {
+    
+        conn = new conectaDAO().connectDB();
+        String sql = "UPDATE produtos SET status = 'Vendido' WHERE id = ?";
+        
+        try {
+            
+            prep = conn.prepareStatement(sql);
+            prep.setInt(1, id);
+            
+            prep.execute();
+           
+        }
+        catch (SQLException sqle) {
+            System.out.println(sqle);
+        }
+               
+        return true;
+    
+    }
+   
+    public ArrayList<ProdutosDTO> listarProdutosVendidos() {
+    
+        conn = new conectaDAO().connectDB();
+        String sql = "SELECT * FROM produtos as p WHERE p.status = 'Vendido'";
+        
+        try {
+            
+            prep = conn.prepareStatement(sql);
+            resultset = prep.executeQuery();
+            
+            while (resultset.next()) {
+                
+                ProdutosDTO produto = new ProdutosDTO();
+                produto.setId(resultset.getInt("id"));
+                produto.setNome(resultset.getString("nome"));
+                produto.setValor(resultset.getInt("valor"));
+                produto.setStatus(resultset.getString("status"));
+                
+                listagem.add(produto);
+             
+            }
+            
+        }
+        catch (SQLException sqle) {
+            System.out.println(sqle);
+        }
+        
+        return listagem;
+    
+    }
+
 }
 
